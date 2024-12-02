@@ -147,14 +147,14 @@ export function getTogetherAIModel(apiKey: OptionalApiKey, model: string) {
 
 export function getAzureAIModel(apiKey: OptionalApiKey, model: string) {
   if (!apiKey) {
-    console.error('azure requires resouce name and api key');
+    console.error('azure requires resource name and api key');
     return undefined;
   }
 
   const resourceKey = apiKey.toString();
 
   if (resourceKey.toString().split(':').length != 2) {
-    console.error('azure requires resouce name and api key');
+    console.error('azure requires resource name and api key');
   }
 
   const azModel = createAzure({
@@ -183,6 +183,8 @@ export function getModel(provider: string, model: string, env: Env, apiKeys?: Re
     case 'Google':
       return getGoogleModel(apiKey, model);
     case 'OpenAILike':
+      return getOpenAILikeModel(baseURL, apiKey, model);
+    case 'Together':
       return getOpenAILikeModel(baseURL, apiKey, model);
     case 'Deepseek':
       return getDeepseekModel(apiKey, model);
