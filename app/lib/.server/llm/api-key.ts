@@ -43,6 +43,8 @@ export function getAPIKey(cloudflareEnv: Env, provider: string, userApiKeys?: Re
       return env.COHERE_API_KEY;
     case 'Azure':
       return env.AZURE_KEY_RESOURCENAME || cloudflareEnv.AZURE_KEY_RESOURCENAME;
+    case 'Perplexity':
+      return env.PERPLEXITY_API_KEY || cloudflareEnv.PERPLEXITY_API_KEY;
     default:
       return '';
   }

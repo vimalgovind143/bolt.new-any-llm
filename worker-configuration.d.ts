@@ -15,4 +15,5 @@ interface Env {
   MISTRAL_API_KEY: string;
   XAI_API_KEY: string;
   AZURE_KEY_RESOURCENAME: string;
+  PERPLEXITY_API_KEY: string;
 }
