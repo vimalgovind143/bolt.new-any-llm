@@ -1,4 +1,4 @@
-import type { ModelInfo, OllamaApiResponse, OllamaModel } from './types';
+import type { ModelInfo, OllamaApiResponse, OllamaModel, NovitaModelsResponse } from './types';
 import type { ProviderInfo } from '~/types/model';
 
 export const WORK_DIR_NAME = 'project';
@@ -260,6 +260,50 @@ const PROVIDER_LIST: ProviderInfo[] = [
     labelForGetApiKey: 'Get LMStudio',
     icon: 'i-ph:cloud-arrow-down',
   },
+  {
+    name: 'NovitaAI',
+    staticModels: [],
+    getDynamicModels: getNovitaModels,
+    getApiKeyLink: 'https://novita.ai/settings/api-keys',
+  },
+  {
+    name: 'Perplexity',
+    staticModels: [
+      { name: 'llama-2-70b-chat', label: 'Llama-2 70B Chat', provider: 'Perplexity', maxTokenAllowed: 4096 },
+      { name: 'llama-2-13b-chat', label: 'Llama-2 13B Chat', provider: 'Perplexity', maxTokenAllowed: 4096 },
+      { name: 'codellama-70b-instruct', label: 'CodeLlama 70B', provider: 'Perplexity', maxTokenAllowed: 4096 },
+      { name: 'codellama-34b-instruct', label: 'CodeLlama 34B', provider: 'Perplexity', maxTokenAllowed: 4096 },
+      { name: 'mistral-7b-instruct', label: 'Mistral 7B', provider: 'Perplexity', maxTokenAllowed: 4096 },
+    ],
+    getApiKeyLink: 'https://docs.perplexity.ai/docs/getting-started',
+  },
+  {
+    name: 'TogetherAI',
+    staticModels: [
+      {
+        name: 'Qwen/Qwen2.5-72B-Instruct-Turbo',
+        label: 'Qwen2.5-72B-Instruct-Turbo',
+        provider: 'TogetherAI',
+        maxTokenAllowed: 1000,
+      },
+      {
+        name: 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo',
+        label: 'Llama 3.1 8B Instruct Turbo',
+        provider: 'TogetherAI',
+        maxTokenAllowed: 1000,
+      },
+    ],
+  },
+  {
+    name: 'Azure',
+    staticModels: [
+      { name: 'gpt-4', label: 'GPT-4 (Azure)', provider: 'Azure', maxTokenAllowed: 8000 },
+      { name: 'gpt-35-turbo', label: 'GPT-3.5 Turbo (Azure)', provider: 'Azure', maxTokenAllowed: 4000 },
+      { name: 'gpt-4-turbo', label: 'GPT-4 Turbo (Azure)', provider: 'Azure', maxTokenAllowed: 128000 },
+      { name: 'gpt-4-vision', label: 'GPT-4 Vision (Azure)', provider: 'Azure', maxTokenAllowed: 128000 },
+    ],
+    getApiKeyLink: 'https://portal.azure.com/#create/Microsoft.CognitiveServicesOpenAI',
+  },
 ];
 
 export const DEFAULT_PROVIDER = PROVIDER_LIST[0];
@@ -388,6 +432,28 @@ async function getLMStudioModels(): Promise<ModelInfo[]> {
   }
 }
 
+async function getNovitaModels(): Promise<ModelInfo[]> {
+  try {
+    const response = await fetch(import.meta.env.VITE_APP_BASE_URL + '/novita-api', {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    const body: NovitaModelsResponse = await response.json();
+    const data = body;
+
+    return data.data.map((m) => ({
+      name: m.id,
+      label: m.title,
+      provider: 'NovitaAI',
+      maxTokenAllowed: m.context_size,
+    }));
+  } catch (e) {
+    console.error('Error fetching Novita models:', e);
+    return [];
+  }
+}
+
 async function initializeModelList(): Promise<ModelInfo[]> {
   MODEL_LIST = [
     ...(
@@ -408,5 +474,6 @@ export {
   getLMStudioModels,
   initializeModelList,
   getOpenRouterModels,
+  getNovitaModels,
   PROVIDER_LIST,
 };

@@ -147,22 +147,48 @@ export function getTogetherAIModel(apiKey: OptionalApiKey, model: string) {
 
 export function getAzureAIModel(apiKey: OptionalApiKey, model: string) {
   if (!apiKey) {
-    console.error('azure requires resource name and api key');
+    console.error('Azure OpenAI requires resource name and API key');
     return undefined;
   }
 
   const resourceKey = apiKey.toString();
+  const [resourceName, key] = resourceKey.split(':');
 
-  if (resourceKey.toString().split(':').length != 2) {
-    console.error('azure requires resource name and api key');
+  if (!resourceName || !key) {
+    console.error('Azure OpenAI requires resource name and API key in format: resourcename:apikey');
+    return undefined;
   }
 
-  const azModel = createAzure({
-    resourceName: resourceKey.split(':')[0],
-    apiKey: resourceKey.split(':')[1],
-  });
+  try {
+    const azModel = createAzure({
+      resourceName,
+      apiKey: key,
+    });
 
-  return azModel(model);
+    return azModel(model);
+  } catch (error) {
+    console.error('Error creating Azure OpenAI model:', error instanceof Error ? error.message : String(error));
+    return undefined;
+  }
+}
+
+export function getPerplexityModel(apiKey: OptionalApiKey, model: string) {
+  if (!apiKey) {
+    console.error('Perplexity requires an API key');
+    return undefined;
+  }
+
+  try {
+    const perplexity = createOpenAI({
+      baseURL: 'https://api.perplexity.ai',
+      apiKey,
+    });
+
+    return perplexity(model);
+  } catch (error) {
+    console.error('Error creating Perplexity model:', error instanceof Error ? error.message : String(error));
+    return undefined;
+  }
 }
 
 export function getModel(provider: string, model: string, env: Env, apiKeys?: Record<string, string>) {
@@ -207,6 +233,8 @@ export function getModel(provider: string, model: string, env: Env, apiKeys?: Re
       return getTogetherAIModel(apiKey, model);
     case 'Azure':
       return getAzureAIModel(apiKey, model);
+    case 'Perplexity':
+      return getPerplexityModel(apiKey, model);
     default:
       return getOllamaModel(baseURL, model);
   }
