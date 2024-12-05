@@ -166,7 +166,12 @@ export function getAzureAIModel(apiKey: OptionalApiKey, model: string) {
 }
 
 export function getModel(provider: string, model: string, env: Env, apiKeys?: Record<string, string>) {
-  const apiKey = getAPIKey(env, provider, apiKeys);
+  /*
+   * let apiKey; // Declare first
+   * let baseURL;
+   */
+
+  const apiKey = getAPIKey(env, provider, apiKeys); // Then assign
   const baseURL = getBaseURL(env, provider);
 
   switch (provider) {
