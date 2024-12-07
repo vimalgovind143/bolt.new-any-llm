@@ -27,6 +27,7 @@ export default defineConfig((config) => {
       chrome129IssuePlugin(),
       config.mode === 'production' && optimizeCssModules({ apply: 'build' }),
     ],
+    envPrefix: ["VITE_", "OPENAI_LIKE_API_", "OLLAMA_API_BASE_URL", "LMSTUDIO_API_BASE_URL","TOGETHER_API_BASE_URL"],
     server: {
       proxy: {
         '/novita-api': {
@@ -43,7 +44,6 @@ export default defineConfig((config) => {
         }
       },
     },
-    envPrefix:["VITE_","OPENAI_LIKE_API_","OLLAMA_API_BASE_URL","LMSTUDIO_API_BASE_URL"],
     css: {
       preprocessorOptions: {
         scss: {
