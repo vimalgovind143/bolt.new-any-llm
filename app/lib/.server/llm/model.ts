@@ -10,6 +10,7 @@ import { ollama } from 'ollama-ai-provider';
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import { createMistral } from '@ai-sdk/mistral';
 import { createCohere } from '@ai-sdk/cohere';
+import { createAzure } from '@ai-sdk/azure';
 import type { LanguageModelV1 } from 'ai';
 
 export const DEFAULT_NUM_CTX = process.env.DEFAULT_NUM_CTX ? parseInt(process.env.DEFAULT_NUM_CTX, 10) : 32768;
@@ -127,6 +128,69 @@ export function getXAIModel(apiKey: OptionalApiKey, model: string) {
   return openai(model);
 }
 
+export function getNovitaModel(apiKey: OptionalApiKey, model: string) {
+  const novita = createOpenAI({
+    baseURL: 'https://api.novita.ai/v3/openai',
+    apiKey,
+  });
+
+  return novita(model);
+}
+
+export function getTogetherAIModel(apiKey: OptionalApiKey, model: string) {
+  const together = createOpenAI({
+    baseURL: 'https://api.together.xyz/v1',
+    apiKey,
+  });
+  return together(model);
+}
+
+export function getAzureAIModel(apiKey: OptionalApiKey, model: string) {
+  if (!apiKey) {
+    console.error('Azure OpenAI requires resource name and API key');
+    return undefined;
+  }
+
+  const resourceKey = apiKey.toString();
+  const [resourceName, key] = resourceKey.split(':');
+
+  if (!resourceName || !key) {
+    console.error('Azure OpenAI requires resource name and API key in format: resourcename:apikey');
+    return undefined;
+  }
+
+  try {
+    const azModel = createAzure({
+      resourceName,
+      apiKey: key,
+    });
+
+    return azModel(model);
+  } catch (error) {
+    console.error('Error creating Azure OpenAI model:', error instanceof Error ? error.message : String(error));
+    return undefined;
+  }
+}
+
+export function getPerplexityModel(apiKey: OptionalApiKey, model: string) {
+  if (!apiKey) {
+    console.error('Perplexity requires an API key');
+    return undefined;
+  }
+
+  try {
+    const perplexity = createOpenAI({
+      baseURL: 'https://api.perplexity.ai',
+      apiKey,
+    });
+
+    return perplexity(model);
+  } catch (error) {
+    console.error('Error creating Perplexity model:', error instanceof Error ? error.message : String(error));
+    return undefined;
+  }
+}
+
 export function getModel(provider: string, model: string, env: Env, apiKeys?: Record<string, string>) {
   /*
    * let apiKey; // Declare first
@@ -163,6 +227,14 @@ export function getModel(provider: string, model: string, env: Env, apiKeys?: Re
       return getXAIModel(apiKey, model);
     case 'Cohere':
       return getCohereAIModel(apiKey, model);
+    case 'NovitaAI':
+      return getNovitaModel(apiKey, model);
+    case 'TogetherAI':
+      return getTogetherAIModel(apiKey, model);
+    case 'Azure':
+      return getAzureAIModel(apiKey, model);
+    case 'Perplexity':
+      return getPerplexityModel(apiKey, model);
     default:
       return getOllamaModel(baseURL, model);
   }
