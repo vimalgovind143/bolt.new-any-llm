@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie';
-import type { ModelInfo, OllamaApiResponse, OllamaModel } from './types';
+import type { ModelInfo, OllamaApiResponse, OllamaModel, NovitaModelsResponse } from './types';
 import type { ProviderInfo } from '~/types/model';
 
 export const WORK_DIR_NAME = 'project';
@@ -262,30 +262,36 @@ const PROVIDER_LIST: ProviderInfo[] = [
     icon: 'i-ph:cloud-arrow-down',
   },
   {
-    name: 'Together',
-    getDynamicModels: getTogetherModels,
+    name: 'NovitaAI',
+    staticModels: [],
+    getDynamicModels: getNovitaModels,
+    getApiKeyLink: 'https://novita.ai/settings/api-keys',
+  },
+  {
+    name: 'Perplexity',
     staticModels: [
-      {
-        name: 'Qwen/Qwen2.5-Coder-32B-Instruct',
-        label: 'Qwen/Qwen2.5-Coder-32B-Instruct',
-        provider: 'Together',
-        maxTokenAllowed: 8000,
-      },
-      {
-        name: 'meta-llama/Llama-3.2-90B-Vision-Instruct-Turbo',
-        label: 'meta-llama/Llama-3.2-90B-Vision-Instruct-Turbo',
-        provider: 'Together',
-        maxTokenAllowed: 8000,
-      },
-
-      {
-        name: 'mistralai/Mixtral-8x7B-Instruct-v0.1',
-        label: 'Mixtral 8x7B Instruct',
-        provider: 'Together',
-        maxTokenAllowed: 8192,
-      },
+      { name: 'llama-2-70b-chat', label: 'Llama-2 70B Chat', provider: 'Perplexity', maxTokenAllowed: 4096 },
+      { name: 'llama-2-13b-chat', label: 'Llama-2 13B Chat', provider: 'Perplexity', maxTokenAllowed: 4096 },
+      { name: 'codellama-70b-instruct', label: 'CodeLlama 70B', provider: 'Perplexity', maxTokenAllowed: 4096 },
+      { name: 'codellama-34b-instruct', label: 'CodeLlama 34B', provider: 'Perplexity', maxTokenAllowed: 4096 },
+      { name: 'mistral-7b-instruct', label: 'Mistral 7B', provider: 'Perplexity', maxTokenAllowed: 4096 },
     ],
-    getApiKeyLink: 'https://api.together.xyz/settings/api-keys',
+    getApiKeyLink: 'https://docs.perplexity.ai/docs/getting-started',
+  },
+  {
+    name: 'Together',
+    staticModels: [],
+    getDynamicModels: getTogetherModels,
+  },
+  {
+    name: 'Azure',
+    staticModels: [
+      { name: 'gpt-4', label: 'GPT-4 (Azure)', provider: 'Azure', maxTokenAllowed: 8000 },
+      { name: 'gpt-35-turbo', label: 'GPT-3.5 Turbo (Azure)', provider: 'Azure', maxTokenAllowed: 4000 },
+      { name: 'gpt-4-turbo', label: 'GPT-4 Turbo (Azure)', provider: 'Azure', maxTokenAllowed: 128000 },
+      { name: 'gpt-4-vision', label: 'GPT-4 Vision (Azure)', provider: 'Azure', maxTokenAllowed: 128000 },
+    ],
+    getApiKeyLink: 'https://portal.azure.com/#create/Microsoft.CognitiveServicesOpenAI',
   },
 ];
 
@@ -477,6 +483,28 @@ async function getLMStudioModels(): Promise<ModelInfo[]> {
   }
 }
 
+async function getNovitaModels(): Promise<ModelInfo[]> {
+  try {
+    const response = await fetch(import.meta.env.VITE_APP_BASE_URL + '/novita-api', {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    const body: NovitaModelsResponse = await response.json();
+    const data = body;
+
+    return data.data.map((m) => ({
+      name: m.id,
+      label: m.title,
+      provider: 'NovitaAI',
+      maxTokenAllowed: m.context_size,
+    }));
+  } catch (e) {
+    console.error('Error fetching Novita models:', e);
+    return [];
+  }
+}
+
 async function initializeModelList(): Promise<ModelInfo[]> {
   let apiKeys: Record<string, string> = {};
 
@@ -513,5 +541,6 @@ export {
   getLMStudioModels,
   initializeModelList,
   getOpenRouterModels,
+  getNovitaModels,
   PROVIDER_LIST,
 };
