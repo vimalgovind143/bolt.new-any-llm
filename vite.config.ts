@@ -34,13 +34,6 @@ export default defineConfig((config) => {
           target: 'https://api.novita.ai/v3/openai/models',
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/novita-api/, ''),
-        },
-        '/lmstudio-api': {
-          target: 'http://localhost:1234/v1/models',
-          changeOrigin: true,
-          rewrite: (path) => {
-            return path.replace(/^\/lmstudio-api/, '')
-          },
         }
       },
     },

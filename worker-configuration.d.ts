@@ -16,4 +16,5 @@ interface Env {
   XAI_API_KEY: string;
   AZURE_KEY_RESOURCENAME: string;
   PERPLEXITY_API_KEY: string;
+  VITE_APP_BASE_URL: string;
 }

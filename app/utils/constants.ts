@@ -485,7 +485,7 @@ async function getLMStudioModels(): Promise<ModelInfo[]> {
 
 async function getNovitaModels(): Promise<ModelInfo[]> {
   try {
-    const response = await fetch(import.meta.env.VITE_APP_BASE_URL + '/novita-api', {
+    const response = await fetch('/novita-api', {
       headers: {
         'Content-Type': 'application/json',
       },
