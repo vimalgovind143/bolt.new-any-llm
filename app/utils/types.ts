@@ -27,6 +27,7 @@ export interface ModelInfo {
   maxTokenAllowed: number;
 }
 
+
 export interface ProviderInfo {
   staticModels: ModelInfo[];
   name: string;
