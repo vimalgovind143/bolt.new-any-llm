@@ -28,6 +28,15 @@ export default defineConfig((config) => {
       config.mode === 'production' && optimizeCssModules({ apply: 'build' }),
     ],
     envPrefix: ["VITE_", "OPENAI_LIKE_API_", "OLLAMA_API_BASE_URL", "LMSTUDIO_API_BASE_URL","TOGETHER_API_BASE_URL"],
+    server: {
+      proxy: {
+        '/novita-api': {
+          target: 'https://api.novita.ai/v3/openai/models',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/novita-api/, ''),
+        }
+      },
+    },
     css: {
       preprocessorOptions: {
         scss: {
